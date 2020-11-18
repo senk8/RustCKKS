@@ -1,5 +1,5 @@
 [package]
-name = "rust-galois-field"
+name = "galois_field"
 version = "0.1.0"
 authors = ["佐藤 開智 <revofal@gmail.com>"]
 edition = "2018"

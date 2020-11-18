@@ -1,77 +1,87 @@
-pub mod galois_field{
-    use std::ops::*;
+extern crate galois_field;
+use galois_field::galois_field::{GF};
 
-    type Numeral = u64;
-    const MOD :Numeral = 10000000007;
-    #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Debug)]
-    pub struct GField{
-        pub val : Numeral,
-    }
-
-    impl GField{
-        pub fn new<T>(x:T) -> Self
-        where Numeral: From<T>,
-        {
-            Self {val: Numeral::from(x) % MOD}
-        }
-    }
-
-    impl Add for GField
-    {
-        type Output = Self;
-        fn add(self, other: Self) -> Self {
-            Self::new(self.val + other.val) 
-        }
-    }
-
-    impl Sub for GField
-    {
-        type Output = Self;
-        fn sub(self, other: Self) -> Self{
-            Self::new(self.val - other.val) 
-        }
-    }
-
-    #[test]
-    fn test_const()
-    {
-        let x = GField::new(1u64);
-        let y = GField::new(0u64);
-        let z = GField::new(1000_000_0007u64);
-        assert_eq!(x,x);
-        assert_eq!(y,z);
-    }
-
-    #[test]
-    fn test_add()
-    {
-        let x = GField{val:1};
-        let y = GField{val:2};
-        let z = GField{val:0};
-        let w = GField{val:10^10+7};
-        assert_eq!(y,x+x);
-        assert_eq!(y,y+z);
-        assert_eq!(x,x+w);
-        assert_eq!(x,w+x);
-    }
-
-    #[test]
-    fn test_sub()
-    {
-        let x = GField{val:1};
-        let y = GField{val:2};
-        let z = GField{val:0};
-        let w = GField{val:10^10+7};
-        assert_eq!(z,x-x);
-        assert_eq!(y,y-z);
-        assert_eq!(x,x-w);
-    }
-
+#[test]
+fn test_const()
+{
+    //let modint = |x|GField::new(x,1000_000_007);
+    let x = GField::new(1i64);
+    let y = GField::new(2i64);
+    let z = GField::new(0i64);
+    let w = GField::new(1000_000_007i64);
+    assert_eq!(x,x);
+    assert_eq!(z,w);
+    assert_eq!(x.get(),1);
+    assert_eq!(y.get(),2);
+    assert_eq!(z.get(),0);
+    assert_eq!(w.get(),0);
 }
-use self::galois_field::*;
+
+
+#[test]
+fn test_inv()
+{
+    let x = GField::new(53i64);
+    assert_eq!(11,x.inv().val);
+}
+
+#[test]
+fn test_add()
+{
+    let mut x = GField::new(1i64);
+    let mut y = GField::new(2i64);
+    let mut z = GField::new(0i64);
+    let mut w = GField::new(1000_000_007i64);
+    assert_eq!(y,x+x);
+    assert_eq!(x,x+z);
+    assert_eq!(x,x+w);
+    assert_eq!(x,w+x);
+
+    x += y;
+    assert_eq!(x.val,3);
+}
+
+#[test]
+fn test_sub()
+{
+    let x = GField::new(1i64);
+    let y = GField::new(2i64);
+    let z = GField::new(0i64);
+    let w = GField::new(1000_000_007i64);
+    assert_eq!(z,x-x);
+    assert_eq!(x,x-z);
+    assert_eq!(x,y-x);
+    assert_eq!(z-x,x-y);
+    assert_eq!(x,x-w);
+}
+
+#[test]
+fn test_mul()
+{
+    let x = GField::new(1i64);
+    let y = GField::new(2i64);
+    let z = GField::new(0i64);
+    let w = GField::new(1000_000_007i64);
+    assert_eq!(y,x*y);
+    assert_eq!(y,y*x);
+    assert_eq!(z,x*z);
+    assert_eq!(4,(y*y).val);
+    assert_eq!(w,w*w);
+}
+
+#[test]
+fn test_div()
+{
+    let x = GF::new(1i64);
+    let y = GF::new(2i64);
+    let z = GF::new(0i64);
+    let w = GF::new(1000_000_007i64);
+    assert_eq!(x,x/x);
+    assert_eq!(x,y/x);
+}
 
 fn main() {
-    let x = GField{val:1};
-    let y = GField{val:1};
-    let z = GField{val:1};
+    let field = gf_init(53);
+    //let x = GField::new(97,53);
+    //println!("{:?}",x.inv());
 }
