@@ -1,5 +1,5 @@
 use super::*;
-use std::cmp::{max,min};
+
 impl GF{
     pub fn new(value:Numeral,modulo:Numeral) -> Self
     {
@@ -33,6 +33,6 @@ impl GF{
             x=nx;y=ny;
             nx=tmpx;ny=tmpy;
         }
-        return Self::new(nx,self.modulo);
+        return Self::new(nx+self.modulo,self.modulo);
     }
 }

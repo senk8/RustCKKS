@@ -14,7 +14,7 @@ impl Sub for GF
     type Output = Self;
     fn sub(self, other: Self) -> Self{
         if self.modulo != other.modulo {panic!("This operation is not enclose in its field.")}
-        Self::new(self.value - other.value,self.modulo) 
+        Self::new(self.value - other.value + self.modulo,self.modulo) 
     }
 }
 
@@ -22,7 +22,7 @@ impl Mul for GF
 {
     type Output = Self;
     fn mul(self, other: Self) -> Self{
-        Self::new(self.value * other.value,self.modulo) 
+        Self::new(self.value * other.value + self.modulo,self.modulo) 
     }
 }
 
