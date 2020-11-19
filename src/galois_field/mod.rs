@@ -1,4 +1,4 @@
-//mod ops;
+mod ops;
 pub mod prim;
 
 pub type Numeral = i64;
@@ -8,14 +8,6 @@ pub type Numeral = i64;
 pub struct GF{
     value : Numeral,
     modulo : Numeral,
-}
-
-
-impl GF{
-    pub fn new(value:Numeral,modulo:Numeral) -> Self
-    {
-        Self {value: value % modulo,modulo: modulo}
-    }
 }
 
 #[derive(Debug)]
@@ -37,12 +29,10 @@ impl FieldGenerator{
     }
 }
 
-/*
-pub fn gf_init(prime: Numeral)-> Box<Fn(i64) -> GF>
+pub fn gf_init(prime: Numeral)-> Box<dyn Fn(i64) -> GF>
 {
     if false {
         panic!("Error: First Argument `prime` is not prime or prime")
     }
     Box::new(move |value|GF::new(value,prime))
 }
-*/

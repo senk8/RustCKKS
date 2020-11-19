@@ -1,6 +1,11 @@
 use super::*;
 use std::cmp::{max,min};
 impl GF{
+    pub fn new(value:Numeral,modulo:Numeral) -> Self
+    {
+        Self {value: value % modulo,modulo: modulo}
+    }
+
     pub fn get(self)-> Numeral{
         self.value
     }
@@ -10,7 +15,6 @@ impl GF{
     {
         self.value=Numeral::from(x);
     }
-
 }
 
 impl GF{
