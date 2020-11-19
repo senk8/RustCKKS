@@ -1,14 +1,6 @@
 use super::*;
 use std::cmp::{max,min};
 impl GF{
-    pub fn new<T>(x:T,y:T) -> Self
-    where Numeral: From<T>,
-    {
-        let value = Numeral::from(x);
-        let modulo = Numeral::from(y);
-        Self {value: value % modulo,modulo: modulo}
-    }
-
     pub fn get(self)-> Numeral{
         self.value
     }

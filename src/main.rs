@@ -1,5 +1,5 @@
 extern crate galois_field;
-use galois_field::galois_field::{GF};
+use galois_field::galois_field::{GF,FieldGenerator};
 
 #[test]
 fn test_const()
@@ -81,7 +81,10 @@ fn test_div()
 }
 
 fn main() {
-    let field = gf_init(53);
+    let field = FieldGenerator::new(53);
+    println!("{:?}",field);
+    println!("{:?}",field.elm(10));
+    println!("{:?}",field.elm(12));
     //let x = GField::new(97,53);
     //println!("{:?}",x.inv());
 }
