@@ -1,20 +1,22 @@
-extern crate galois_field;
-use galois_field::galois_field::gf_init;
+mod galois_field;
+use crate::galois_field::gf_elm::GFElm;
+use crate::galois_field::gf_context::GFContext;
 
 fn main() {
-    let gf5 = gf_init(5);
-    println!("{:?}",gf5(3));
-    println!("{:?}",gf5(2));
+    let gf5 = GFContext::new(5isize);
+    println!("{:?}",gf5.elm(3isize));
+    println!("{:?}",gf5.elm(2isize));
 
-    let gf53 = gf_init(53);
-    let x = gf53(97);
+    let gf53 = GFContext::new(53isize);
+    let x = gf53.elm(97isize);
 
-    let gf97 = gf_init(97);
-    let x = gf97(11);
-    let y = gf97(53);
+    let gf97 = GFContext::new(97isize);
+    let x = gf97.elm(11isize);
+    let y = gf97.elm(53isize);
     println!("{:?}",x);
     println!("{:?}",x+y);
     println!("{:?}",x/x);
+    println!("{:?}",x.inv());
 
     //println!("{:?}",x*x.inv());
     //println!("{:?}",y*y.inv());
