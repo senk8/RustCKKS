@@ -1,2 +1,3 @@
-# rust-galois-field
-Galois-Field implementation  for Rust
+# RustFHE
+
+This repository contains FHE Fullscrach implement and basic algebra library.
