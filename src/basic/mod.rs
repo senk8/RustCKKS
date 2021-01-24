@@ -1,6 +1,6 @@
 use std::ops::*;
-use crate::galois_field::gf_context::GFContext;
-use crate::galois_field::gf_elm::GFElm;
+use crate::field::gf_context::GFContext;
+use crate::field::gf_elm::GFElm;
 
 pub fn gcd(a:isize,b:isize)->isize
 {

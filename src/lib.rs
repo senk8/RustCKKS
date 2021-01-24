@@ -1,2 +1,3 @@
 pub mod basic;
-pub mod galois_field;
+pub mod field;
+pub mod ring;
