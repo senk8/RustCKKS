@@ -22,7 +22,10 @@ fn main() {
 
     let ans = Polynomial::new(vec![1, 2], &gf5) * Polynomial::new(vec![2, 3], &gf5);
 
-    //println!("{:?}",x*x.inv());
-    //println!("{:?}",y*y.inv());
-    //println!("{:?}",-52%53);
+    let ring97 = GFContext::new(97);
+    let x = ring97.elm(11);
+    let y = ring97.elm(53);
+    println!("{}", x);
+    println!("{}", y);
+    assert_eq!(ring97.elm(64), x+y);
 }

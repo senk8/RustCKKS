@@ -22,7 +22,7 @@ impl Sub for GFElm {
         }
         Self::new(
             if self.value < other.value {
-                self.modulo - (other.value - self.value) 
+                self.modulo - (other.value - self.value)
             } else {
                 self.value - other.value
             },
@@ -100,15 +100,15 @@ impl GFElm {
             let r: Element = a % b;
 
             let nx: Element = if x1 < q * x2 % self.modulo {
-                self.modulo - (q * x2 % self.modulo - x1) 
+                self.modulo - (q * x2 % self.modulo - x1)
             } else {
-                x1 - ( q * x2  % self.modulo )
+                x1 - (q * x2 % self.modulo)
             };
 
             let ny: Element = if y1 < q * y2 % self.modulo {
                 self.modulo - (q * y2 % self.modulo - y1)
             } else {
-                y1 - ( q * y2 % self.modulo )
+                y1 - (q * y2 % self.modulo)
             };
 
             a = b;
@@ -129,7 +129,7 @@ impl fmt::Display for GFElm {
             f,
             "{0} mod {1}",
             self.value.to_string(),
-            self.value.to_string()
+            self.modulo.to_string()
         )
     }
 }

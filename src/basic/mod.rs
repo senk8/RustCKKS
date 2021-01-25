@@ -1,39 +1,45 @@
-use std::ops::*;
 use crate::field::gf_context::GFContext;
 use crate::field::gf_elm::GFElm;
+use std::ops::*;
 
-pub fn gcd(a:isize,b:isize)->isize
-{
-    if a%b == 0 { a }
-    else{ gcd(b,a%b) }
+pub fn gcd(a: isize, b: isize) -> isize {
+    if a % b == 0 {
+        a
+    } else {
+        gcd(b, a % b)
+    }
 }
 
-pub fn lcm(a:isize,b:isize)->isize
-{
-    (a*b)/gcd(a,b)
+pub fn lcm(a: isize, b: isize) -> isize {
+    (a * b) / gcd(a, b)
 }
-
 
 pub struct Polynomial(Vec<GFElm>);
 
-impl Polynomial{
-    pub fn new(vec:Vec<u64>,gc:&GFContext)->Polynomial{
-        Polynomial(vec.iter().map(|x|gc.elm(*x)).collect())
+impl Polynomial {
+    pub fn new(vec: Vec<u64>, gc: &GFContext) -> Polynomial {
+        Polynomial(vec.iter().map(|x| gc.elm(*x)).collect())
     }
 }
 
-
-impl Add for Polynomial{
+impl Add for Polynomial {
     type Output = Self;
     fn add(self, rhs: Self) -> Self {
-        Polynomial(self.0.iter().zip(rhs.0).map(|(x,y)|*x+y).collect())
+        Polynomial(self.0.iter().zip(rhs.0).map(|(x, y)| *x + y).collect())
     }
 }
 
-impl Mul for Polynomial{
+impl Mul for Polynomial {
     type Output = Self;
     fn mul(self, rhs: Self) -> Self {
-        Polynomial(self.0.iter().rev().zip(rhs.0).map(|(x,y)|*x*y).collect())
+        Polynomial(
+            self.0
+                .iter()
+                .rev()
+                .zip(rhs.0)
+                .map(|(x, y)| *x * y)
+                .collect(),
+        )
     }
 }
 
@@ -59,7 +65,7 @@ pub fn is_irreducible(poly:Polynomial) -> bool
     for i in 1..k{
         irreducible &= poly[i]%3==0;
     }
- 
+
     if poly[k]%p != 0
     irreducible
 }

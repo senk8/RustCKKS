@@ -7,12 +7,10 @@ pub struct RingContext {
 }
 
 impl RingContext {
-    pub fn new(x: u64) -> Self
-    {
+    pub fn new(x: u64) -> Self {
         Self { modulo: x }
     }
-    pub fn elm(&self, x: u64) -> RingElm
-    {
+    pub fn elm(&self, x: u64) -> RingElm {
         RingElm::new(x, self.modulo)
     }
 }

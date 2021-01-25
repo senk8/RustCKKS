@@ -15,12 +15,10 @@ pub struct GFContext {
 }
 
 impl GFContext {
-    pub fn new(x: u64) -> Self
-    {
+    pub fn new(x: u64) -> Self {
         Self { modulo: x }
     }
-    pub fn elm(&self, x: u64) -> GFElm
-    {
+    pub fn elm(&self, x: u64) -> GFElm {
         GFElm::new(x, self.modulo)
     }
 }
