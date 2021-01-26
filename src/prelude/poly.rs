@@ -1,23 +1,26 @@
-use super::gf_context::GFContext;
-use super::gf_elm::GFElm;
+use super::ring_context::RingContext;
+use super::ring_elm::RingElm;
 use std::fmt;
 use std::ops::*;
 use num::Complex;
+use num::traits::Num;
 
-#[derive(Debug)]
-pub struct Polynomial(Vec<Complex<f64>>);
+#[derive(Debug,Clone)]
+pub struct Polynomial(Vec<f64>);
 
 impl Polynomial {
-    pub fn new(vec: Vec<Complex<f64>>) -> Polynomial {
+    pub fn new(vec: Vec<f64>) -> Polynomial {
         Polynomial(vec)
     }
-    pub fn eval(&self, root:Complex<f64>)->Complex<f64> {
+    pub fn eval(&self, root:Complex<f64>)->Complex<f64> 
+    {
         let mut sum = Complex::new(0f64,0f64);
         for i in 0..self.0.len() {
-            sum = sum + self.0[i] * root.powi(i as i32);
+            sum = sum + root.powi(i as i32) * self.0[i];
         }
         sum
     }
+
     /*
     pub fn size(self)->{
         // sum の型は？
@@ -36,14 +39,17 @@ impl Add for Polynomial {
 impl Mul for Polynomial {
     type Output = Self;
     fn mul(self, rhs: Self) -> Self {
-        Polynomial(
-            self.0
-                .iter()
-                .rev()
-                .zip(rhs.0)
-                .map(|(x, y)| *x * y)
-                .collect(),
-        )
+        let d= self.0.len()+rhs.0.len()-1;
+        println!("{}",d);
+        let mut poly = vec![0f64;d];
+
+        for k in 0..=d{
+            for i in 0..=k{
+                poly[k]=poly[k]+self.0[i]*rhs.0[k-i];
+                println!("{}:{}",k,i);
+            }
+        }
+        Polynomial(poly)
     }
 }
 

@@ -1,7 +1,10 @@
 mod prelude;
 
 fn main() {
-    //let ans = Polynomial::new(vec![1, 2], &gf5) * Polynomial::new(vec![2, 3], &gf5);
+    use crate::prelude::poly::Polynomial;
+    let poly = Polynomial::new(vec![1f64,2f64]);
+
+    println!("{:?}",poly.clone()*poly.clone());
     return ();
 }
 
@@ -60,10 +63,12 @@ mod tests {
         let one = Complex::new(1f64,0f64);
         let two = Complex::new(2f64,0f64);
         let three = Complex::new(3f64,0f64);
-        let poly = Polynomial::new(vec![one,two]);
+        let poly = Polynomial::new(vec![1f64,2f64]);
 
         println!("{:?}",&(poly.eval(two)));
         assert_eq!(true,complex_eq(Complex::new(5f64,0f64),poly.eval(two)));
         assert_eq!(true,complex_eq(Complex::new(7f64,0f64),poly.eval(three)));
+
+        //println!("{:?}",poly.clone()*poly.clone());
     }
 }
