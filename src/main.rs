@@ -1,5 +1,4 @@
 mod prelude;
-use crate::prelude::poly::Polynomial;
 
 fn main() {
     //let ans = Polynomial::new(vec![1, 2], &gf5) * Polynomial::new(vec![2, 3], &gf5);
@@ -50,5 +49,21 @@ mod tests {
         let one = Complex::new(1f64,0f64);
         let cyclotomic = cyc(m);
         assert_eq!(true,complex_eq(one,cyclotomic * cyclotomic * cyclotomic * cyclotomic));
+    }
+
+
+    #[test]
+    fn test_poly(){
+        use crate::prelude::cyc::{cyc,complex_eq};
+        use crate::prelude::poly::Polynomial;
+        use num::Complex;
+        let one = Complex::new(1f64,0f64);
+        let two = Complex::new(2f64,0f64);
+        let three = Complex::new(3f64,0f64);
+        let poly = Polynomial::new(vec![one,two]);
+
+        println!("{:?}",&(poly.eval(two)));
+        assert_eq!(true,complex_eq(Complex::new(5f64,0f64),poly.eval(two)));
+        assert_eq!(true,complex_eq(Complex::new(7f64,0f64),poly.eval(three)));
     }
 }

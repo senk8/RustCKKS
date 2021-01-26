@@ -2,13 +2,28 @@ use super::gf_context::GFContext;
 use super::gf_elm::GFElm;
 use std::fmt;
 use std::ops::*;
+use num::Complex;
 
-pub struct Polynomial(Vec<GFElm>);
+#[derive(Debug)]
+pub struct Polynomial(Vec<Complex<f64>>);
 
 impl Polynomial {
-    pub fn new(vec: Vec<u64>, gc: &GFContext) -> Polynomial {
-        Polynomial(vec.iter().map(|x| gc.elm(*x)).collect())
+    pub fn new(vec: Vec<Complex<f64>>) -> Polynomial {
+        Polynomial(vec)
     }
+    pub fn eval(&self, root:Complex<f64>)->Complex<f64> {
+        let mut sum = Complex::new(0f64,0f64);
+        for i in 0..self.0.len() {
+            sum = sum + self.0[i] * root.powi(i as i32);
+        }
+        sum
+    }
+    /*
+    pub fn size(self)->{
+        // sum の型は？
+        self.0.fold(0,|sum,a|sum+a.pow(2))
+    }
+    */
 }
 
 impl Add for Polynomial {
