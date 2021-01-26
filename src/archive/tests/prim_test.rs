@@ -1,7 +1,6 @@
 extern crate galois_field;
 use galois_field::galois_field::gf_init;
 
-#[test]
 fn test_const() {
     let gf97 = gf_init(97i64);
 
@@ -14,7 +13,6 @@ fn test_const() {
     assert_eq!(z, w);
 }
 
-#[test]
 fn test_inv() {
     let gf97 = gf_init(97i64);
 

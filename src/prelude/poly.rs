@@ -1,18 +1,7 @@
-use crate::field::gf_context::GFContext;
-use crate::field::gf_elm::GFElm;
+use super::gf_context::GFContext;
+use super::gf_elm::GFElm;
+use std::fmt;
 use std::ops::*;
-
-pub fn gcd(a: isize, b: isize) -> isize {
-    if a % b == 0 {
-        a
-    } else {
-        gcd(b, a % b)
-    }
-}
-
-pub fn lcm(a: isize, b: isize) -> isize {
-    (a * b) / gcd(a, b)
-}
 
 pub struct Polynomial(Vec<GFElm>);
 
@@ -42,8 +31,6 @@ impl Mul for Polynomial {
         )
     }
 }
-
-use std::fmt;
 
 /*
 impl fmt::Display for Polynomial {
