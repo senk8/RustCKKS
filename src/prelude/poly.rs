@@ -39,16 +39,17 @@ impl Add for Polynomial {
 impl Mul for Polynomial {
     type Output = Self;
     fn mul(self, rhs: Self) -> Self {
+        use std::cmp::{max,min};
         let d= self.0.len()+rhs.0.len()-1;
-        println!("{}",d);
         let mut poly = vec![0f64;d];
 
         for k in 0..=d{
             for i in 0..=k{
+                if min(self.0.len(),rhs.0.len()) <= max(i,k-i) { continue; }
                 poly[k]=poly[k]+self.0[i]*rhs.0[k-i];
-                println!("{}:{}",k,i);
             }
         }
+
         Polynomial(poly)
     }
 }
