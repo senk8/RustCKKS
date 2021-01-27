@@ -1,32 +1,34 @@
 use super::ring_context::RingContext;
 use super::ring_elm::RingElm;
+use num::traits::Num;
+use num::Complex;
 use std::fmt;
 use std::ops::*;
-use num::Complex;
-use num::traits::Num;
 
-#[derive(Debug,Clone)]
+#[derive(Debug, Clone)]
 pub struct Polynomial(Vec<f64>);
 
 impl Polynomial {
     pub fn new(vec: Vec<f64>) -> Polynomial {
         Polynomial(vec)
     }
-    pub fn eval(&self, root:Complex<f64>)->Complex<f64> 
-    {
-        let mut sum = Complex::new(0f64,0f64);
+
+    pub fn eval(&self, root: Complex<f64>) -> Complex<f64> {
+        let mut sum = Complex::new(0f64, 0f64);
         for i in 0..self.0.len() {
             sum = sum + root.powi(i as i32) * self.0[i];
         }
         sum
     }
 
-    /*
-    pub fn size(self)->{
-        // sum の型は？
-        self.0.fold(0,|sum,a|sum+a.pow(2))
+    /// size function calculate below
+    ///|h| = (a_0^2 + a_1^2 + ... + a_n^2 )^1/2
+    pub fn size(&self) -> Complex<f64> {
+        self.0
+            .iter()
+            .fold(Complex::new(0f64, 0f64), |sum, a| sum + a.powi(2))
+            .powf(0.5)
     }
-    */
 }
 
 impl Add for Polynomial {
@@ -39,14 +41,15 @@ impl Add for Polynomial {
 impl Mul for Polynomial {
     type Output = Self;
     fn mul(self, rhs: Self) -> Self {
-        use std::cmp::{max,min};
-        let d= self.0.len()+rhs.0.len()-1;
-        let mut poly = vec![0f64;d];
+        let d = self.0.len() + rhs.0.len() - 1;
+        let mut poly = vec![0f64; d];
 
-        for k in 0..=d{
-            for i in 0..=k{
-                if min(self.0.len(),rhs.0.len()) <= max(i,k-i) { continue; }
-                poly[k]=poly[k]+self.0[i]*rhs.0[k-i];
+        for k in 0..=d {
+            for i in 0..=k {
+                if self.0.len() <=  i || rhs.0.len() <= k - i {
+                    continue;
+                }
+                poly[k] = poly[k] + self.0[i] * rhs.0[k - i];
             }
         }
 
