@@ -1,4 +1,5 @@
 mod prelude;
+use ndarray::{array,Array};
 
 fn main() {
     use crate::prelude::poly::Polynomial;
@@ -6,6 +7,7 @@ fn main() {
     let poly2 = Polynomial::new(vec![1f64, 2f64, 3f64]);
 
     println!("{:?}", poly1 * poly2);
+    println!("{:?}",array![1.0,2.0,3.0]);
     return ();
 }
 

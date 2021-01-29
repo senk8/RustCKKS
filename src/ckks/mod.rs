@@ -23,7 +23,7 @@ impl CKKSContext {
         x^1,x^1,x^1,x^1
     */
 
-    fn vandermonde(root:Complex<f64>)->Vec<Vec<Complex<f64>>>{
+    fn vandermonde(self,root:Complex<f64>)->Vec<Vec<Complex<f64>>>{
         let N = self.m / 2;
         let mut mat = vec![];
 
