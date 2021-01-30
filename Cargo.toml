@@ -1,5 +1,5 @@
 [package]
-name = "galois_field"
+name = "RustCKKS"
 version = "0.1.0"
 authors = ["senk8"]
 edition = "2018"
@@ -7,7 +7,9 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-#intel-mkl-src = "0.6.0"
-ndarray = "0.14.0"
-#ndarray-linalg = { version="0.12.1", features=["intel-mkl"]}
+nalgebra = "*"
+ndarray = "0.13.0" # 0.14以上だと、solve_intoがない。
+ndarray-linalg = { version = "0.12.1", features = ["intel-mkl"] }
 num = "0.3.1"
+num-complex = "0.3.1"
+

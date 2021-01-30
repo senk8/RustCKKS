@@ -1,16 +1,20 @@
 mod ckks;
 mod prelude;
 use ckks::encoder::CKKSEncoder;
+use ndarray::{Array1, Array2,array};
+use ndarray_linalg::types::c64;
+
 
 fn main() {
     use crate::prelude::cyc::complex_eq;
-    use num::Complex;
 
-    let encoder = crate::ckks::encoder::CKKSEncoder::new(4);
+    let encoder = CKKSEncoder::new(4);
     let x = encoder.get_unity();
 
     println!("{:?}", x*x*x*x);
-    assert_eq!(true, complex_eq(Complex::new(1f64, 0f64), x * x * x * x));
+    assert_eq!(true, complex_eq(c64::new(1f64, 0f64), x * x * x * x));
+
+    println!("{:?}",encoder.encode(array![c64::new(1f64,0f64),c64::new(1f64,0f64)]));
  
     return ();
 }
@@ -54,9 +58,9 @@ mod tests {
     #[test]
     fn test_cyclotomic() {
         use crate::prelude::cyc::{complex_eq, cyc};
-        use num::Complex;
+        use ndarray_linalg::types::c64;
         let m = 4;
-        let one = Complex::new(1f64, 0f64);
+        let one = c64::new(1f64, 0f64);
         let cyclotomic = cyc(m);
         assert_eq!(
             true,
@@ -68,19 +72,20 @@ mod tests {
     fn test_poly() {
         use crate::ckks::plaintxt::Plaintxt;
         use crate::prelude::cyc::{complex_eq, cyc};
-        use num::Complex;
-        let one = Complex::new(1f64, 0f64);
-        let two = Complex::new(2f64, 0f64);
-        let three = Complex::new(3f64, 0f64);
+        use ndarray_linalg::types::c64;
+
+        let one = c64::new(1f64, 0f64);
+        let two = c64::new(2f64, 0f64);
+        let three = c64::new(3f64, 0f64);
         let poly1 = Plaintxt::new(vec![1f64, 2f64]);
         let poly2 = Plaintxt::new(vec![1f64, 2f64]);
         let poly3 = Plaintxt::new(vec![1f64, 4f64, 4f64]);
 
-        assert_eq!(true, complex_eq(Complex::new(3f64, 0f64), poly1.eval(one)));
-        assert_eq!(true, complex_eq(Complex::new(5f64, 0f64), poly1.eval(two)));
+        assert_eq!(true, complex_eq(c64::new(3f64, 0f64), poly1.eval(one)));
+        assert_eq!(true, complex_eq(c64::new(5f64, 0f64), poly1.eval(two)));
         assert_eq!(
             true,
-            complex_eq(Complex::new(7f64, 0f64), poly1.eval(three))
+            complex_eq(c64::new(7f64, 0f64), poly1.eval(three))
         );
         assert_eq!(poly3, poly1 * poly2);
     }
@@ -88,12 +93,12 @@ mod tests {
     #[test]
     fn test_unity() {
         use crate::prelude::cyc::complex_eq;
-        use num::Complex;
+        use ndarray_linalg::types::c64;
 
         let encoder = crate::ckks::encoder::CKKSEncoder::new(4);
         let x = encoder.get_unity();
 
         println!("{:?}", x*x*x*x);
-        assert_eq!(true, complex_eq(Complex::new(1f64, 0f64), x * x * x * x));
+        assert_eq!(true, complex_eq(c64::new(1f64, 0f64), x * x * x * x));
     }
 }

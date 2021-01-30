@@ -1,10 +1,12 @@
 use super::plaintxt::Plaintxt;
 use ndarray::{Array, Array1, Array2};
-use num::Complex;
+use ndarray::prelude::*;
+use ndarray_linalg::*;
+use ndarray_linalg::types::c64;
 
 pub struct CKKSEncoder {
     m: usize,
-    unity: Complex<f64>,
+    unity: c64,
 }
 
 impl CKKSEncoder {
@@ -27,15 +29,15 @@ impl CKKSEncoder {
 
     pub fn new(m: usize) -> CKKSEncoder {
         let unity =
-            (2f64 * std::f64::consts::PI * Complex::i() / Complex::new(m as f64, 0f64)).exp();
+            (2f64 * std::f64::consts::PI * c64::i() / c64::new(m as f64, 0f64)).exp();
         CKKSEncoder { m, unity }
     }
 
-    pub fn get_unity(&self) -> Complex<f64> {
+    pub fn get_unity(&self) -> c64 {
         self.unity
     }
 
-    fn vandermonde(&self) -> Array2<Complex<f64>> {
+    fn vandermonde(&self) -> Array2<c64> {
         let n: usize = self.m / 2;
         let mut mat = vec![];
 
@@ -49,21 +51,20 @@ impl CKKSEncoder {
         Array::from_shape_vec((n, n), mat).unwrap()
     }
 
-    /*
-    pub fn encode(self,z:Array1<Complex<f64>>)->Plaintxt
+    pub fn encode(self,z:Array1<c64>)->Array1<c64>
     {
-        let A = self.vandermonde();
-        let coeffs = linalg.solve(A,z);
-
-        Plaintxt::new(coeffs)
+        let vand = self.vandermonde();
+        let coeffs = vand.solveh_into(z).unwrap();
+        coeffs
     }
+    
 
-    pub fn decode(self,poly: Plaintxt)->Array1<Complex<f64>>
+    pub fn decode(self,poly: Plaintxt)->Array1<c64>
     {
-        let N = self.m / 2;
+        let n = self.m / 2;
         let mut z = vec![];
 
-        for i in 0..N {
+        for i in 0..n {
             let root = self.unity.powu(2 * i as u32 + 1);
             let res = poly.eval(root);
             z.push(res);
@@ -71,5 +72,4 @@ impl CKKSEncoder {
 
         Array::from_vec(z)
     }
-    */
 }

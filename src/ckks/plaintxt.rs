@@ -1,4 +1,4 @@
-use num::Complex;
+use ndarray_linalg::types::c64;
 use std::ops::*;
 
 #[derive(Debug, Clone, PartialEq, PartialOrd)]
@@ -9,8 +9,8 @@ impl Plaintxt {
         Plaintxt(vec)
     }
 
-    pub fn eval(&self, root: Complex<f64>) -> Complex<f64> {
-        let mut sum = Complex::new(0f64, 0f64);
+    pub fn eval(&self, root: c64) -> c64 {
+        let mut sum = c64::new(0f64, 0f64);
         for i in 0..self.0.len() {
             sum = sum + root.powu(i as u32) * self.0[i];
         }
@@ -19,10 +19,10 @@ impl Plaintxt {
 
     /// size function calculate below
     ///|h| = (a_0^2 + a_1^2 + ... + a_n^2 )^1/2
-    pub fn size(&self) -> Complex<f64> {
+    pub fn size(&self) -> c64 {
         self.0
             .iter()
-            .fold(Complex::new(0f64, 0f64), |sum, a| sum + a.powi(2))
+            .fold(c64::new(0f64, 0f64), |sum, a| sum + a.powi(2))
             .powf(0.5)
     }
 }
