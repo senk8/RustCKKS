@@ -1,13 +1,17 @@
+mod ckks;
 mod prelude;
-use ndarray::{array,Array};
+use ckks::encoder::CKKSEncoder;
 
 fn main() {
-    use crate::prelude::poly::Polynomial;
-    let poly1 = Polynomial::new(vec![1f64, 2f64]);
-    let poly2 = Polynomial::new(vec![1f64, 2f64, 3f64]);
+    use crate::prelude::cyc::complex_eq;
+    use num::Complex;
 
-    println!("{:?}", poly1 * poly2);
-    println!("{:?}",array![1.0,2.0,3.0]);
+    let encoder = crate::ckks::encoder::CKKSEncoder::new(4);
+    let x = encoder.get_unity();
+
+    println!("{:?}", x*x*x*x);
+    assert_eq!(true, complex_eq(Complex::new(1f64, 0f64), x * x * x * x));
+ 
     return ();
 }
 
@@ -62,18 +66,34 @@ mod tests {
 
     #[test]
     fn test_poly() {
+        use crate::ckks::plaintxt::Plaintxt;
         use crate::prelude::cyc::{complex_eq, cyc};
-        use crate::prelude::poly::Polynomial;
         use num::Complex;
         let one = Complex::new(1f64, 0f64);
         let two = Complex::new(2f64, 0f64);
         let three = Complex::new(3f64, 0f64);
-        let poly = Polynomial::new(vec![1f64, 2f64]);
+        let poly1 = Plaintxt::new(vec![1f64, 2f64]);
+        let poly2 = Plaintxt::new(vec![1f64, 2f64]);
+        let poly3 = Plaintxt::new(vec![1f64, 4f64, 4f64]);
 
-        println!("{:?}", &(poly.eval(two)));
-        assert_eq!(true, complex_eq(Complex::new(5f64, 0f64), poly.eval(two)));
-        assert_eq!(true, complex_eq(Complex::new(7f64, 0f64), poly.eval(three)));
+        assert_eq!(true, complex_eq(Complex::new(3f64, 0f64), poly1.eval(one)));
+        assert_eq!(true, complex_eq(Complex::new(5f64, 0f64), poly1.eval(two)));
+        assert_eq!(
+            true,
+            complex_eq(Complex::new(7f64, 0f64), poly1.eval(three))
+        );
+        assert_eq!(poly3, poly1 * poly2);
+    }
 
-        //println!("{:?}",poly.clone()*poly.clone());
+    #[test]
+    fn test_unity() {
+        use crate::prelude::cyc::complex_eq;
+        use num::Complex;
+
+        let encoder = crate::ckks::encoder::CKKSEncoder::new(4);
+        let x = encoder.get_unity();
+
+        println!("{:?}", x*x*x*x);
+        assert_eq!(true, complex_eq(Complex::new(1f64, 0f64), x * x * x * x));
     }
 }
