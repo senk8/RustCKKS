@@ -55,7 +55,7 @@ impl CKKSEncoder {
     {
         let vand = self.vandermonde();
         let coeffs = vand.solveh_into(z).unwrap();
-        coeffs
+        coeffs//TODO 今はArrayを直接返しているが本来はPlaintxt型
     }
     
 
@@ -72,4 +72,23 @@ impl CKKSEncoder {
 
         Array::from_vec(z)
     }
+
+    /*
+    pub fn pi(self,z:Array1<c64>)->Array1<c64>
+    {
+        //H->C^N/2
+        let n = self.m / 4;
+        z[..n]
+    }
+
+    pub fn pi_inverse(self,z:Array1<c64>)->Array1<c64>
+    {
+       //C^N/2 を共役で拡張
+       /*
+        1. zを反転してz'にする
+        2. z'の要素を共役に変換する
+        3. zとz'を結合する
+       */
+    }
+    */
 }
