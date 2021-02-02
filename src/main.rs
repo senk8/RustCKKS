@@ -2,13 +2,20 @@ mod ckks;
 mod prelude;
 use ckks::encoder::CKKSEncoder;
 use ndarray::{Array1, Array2,array};
-use ndarray_linalg::types::c64;
+use nalgebra::{DMatrix,DVector};
 
+use nalgebra::Complex;
+type c64 = Complex<f64>;
 
 fn main() {
     let encoder = CKKSEncoder::new(8);
-    let ptxt = encoder.encode(array![c64::new(1f64,0f64),c64::new(2f64,0f64),c64::new(3f64,0f64),c64::new(4f64,0f64)]);
+    let z = DVector::from_vec(vec![c64::new(1f64,0f64),c64::new(2f64,0f64),c64::new(3f64,0f64),c64::new(4f64,0f64)]);
+    let ptxt = encoder.encode(z);
+
+    println!("{}",ptxt.get());
     let res = encoder.decode(ptxt);
+
+    println!("{}",res);
     return ();
 }
 

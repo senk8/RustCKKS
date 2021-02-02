@@ -1,13 +1,13 @@
 use std::ops::*;
-use ndarray::{Array1, Array2,array};
-use ndarray_linalg::types::c64;
-
+use nalgebra::{DVector,DMatrix};
+use nalgebra::Complex;
+type c64 = Complex<f64>;
 
 #[derive(Debug, Clone)]
-pub struct Plaintxt(Array1<c64>);
+pub struct Plaintxt(DVector<c64>);
 
 impl Plaintxt {
-    pub fn new(vec: Array1<c64>) -> Plaintxt {
+    pub fn new(vec: DVector<c64>) -> Plaintxt {
         Plaintxt(vec)
     }
 
@@ -26,6 +26,10 @@ impl Plaintxt {
             .iter()
             .fold(c64::new(0f64, 0f64), |sum, a| sum + a.powi(2))
             .powf(0.5)
+    }
+
+    pub fn get(&self) -> DVector<c64> {
+        self.0.clone()
     }
 }
 

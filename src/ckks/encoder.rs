@@ -1,8 +1,9 @@
 use super::plaintxt::Plaintxt;
-use ndarray::{Array, Array1, Array2};
-use ndarray::prelude::*;
-use ndarray_linalg::*;
-use ndarray_linalg::types::c64;
+//use ndarray_linalg::types::c64;
+
+use nalgebra::{DVector,DMatrix};
+use nalgebra::Complex;
+type c64 = Complex<f64>;
 
 pub struct CKKSEncoder {
     m: usize,
@@ -37,7 +38,7 @@ impl CKKSEncoder {
         self.unity
     }
 
-    fn vandermonde(&self) -> Array2<c64> {
+    fn vandermonde(&self) -> DMatrix<c64> {
         let n: usize = self.m / 2;
         let mut mat = vec![];
 
@@ -48,19 +49,19 @@ impl CKKSEncoder {
             }
         }
 
-        let res = Array::from_shape_vec((n, n), mat).unwrap();
+        let res = DMatrix::from_vec(n, n, mat);
         res 
     }
 
-    pub fn encode(&self,z:Array1<c64>)->Plaintxt
+    pub fn encode(&self,z:DVector<c64>)->Plaintxt
     {
         let vand = self.vandermonde();
-        let coeffs = vand.solveh_into(z).unwrap();
+        let coeffs = vand.try_inverse().unwrap() * z;
         Plaintxt::new(coeffs)
     }
     
 
-    pub fn decode(&self,poly: Plaintxt)->Array1<c64>
+    pub fn decode(&self,poly: Plaintxt)->DVector<c64>
     {
         let n = self.m / 2;
         let mut z = vec![];
@@ -71,7 +72,7 @@ impl CKKSEncoder {
             z.push(res);
         }
 
-        Array::from_vec(z)
+        DVector::from_vec(z)
     }
 
     /*
