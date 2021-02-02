@@ -6,20 +6,26 @@ use ndarray_linalg::types::c64;
 
 
 fn main() {
-    use crate::prelude::cyc::complex_eq;
-
-    let encoder = CKKSEncoder::new(4);
-    let x = encoder.get_unity();
-
-    println!("{:?}", x*x*x*x);
-    assert_eq!(true, complex_eq(c64::new(1f64, 0f64), x * x * x * x));
-
-    println!("{:?}",encoder.encode(array![c64::new(1f64,0f64),c64::new(1f64,0f64)]));
- 
+    let encoder = CKKSEncoder::new(8);
+    let ptxt = encoder.encode(array![c64::new(1f64,0f64),c64::new(2f64,0f64),c64::new(3f64,0f64),c64::new(4f64,0f64)]);
+    let res = encoder.decode(ptxt);
     return ();
 }
 
 mod tests {
+
+    #[test]
+    fn test_cyc(){
+        use crate::ckks::encoder::CKKSEncoder;
+        use crate::prelude::cyc::complex_eq;
+        use ndarray_linalg::types::c64;
+
+        let encoder = CKKSEncoder::new(4);
+        let x = encoder.get_unity();
+
+        assert_eq!(true, complex_eq(c64::new(1f64, 0f64), x * x * x * x))
+    }
+
     #[test]
     fn test_gf() {
         use crate::prelude::gf_context::GFContext;

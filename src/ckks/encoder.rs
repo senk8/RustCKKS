@@ -48,18 +48,19 @@ impl CKKSEncoder {
             }
         }
 
-        Array::from_shape_vec((n, n), mat).unwrap()
+        let res = Array::from_shape_vec((n, n), mat).unwrap();
+        res 
     }
 
-    pub fn encode(self,z:Array1<c64>)->Array1<c64>
+    pub fn encode(&self,z:Array1<c64>)->Plaintxt
     {
         let vand = self.vandermonde();
         let coeffs = vand.solveh_into(z).unwrap();
-        coeffs//TODO 今はArrayを直接返しているが本来はPlaintxt型
+        Plaintxt::new(coeffs)
     }
     
 
-    pub fn decode(self,poly: Plaintxt)->Array1<c64>
+    pub fn decode(&self,poly: Plaintxt)->Array1<c64>
     {
         let n = self.m / 2;
         let mut z = vec![];

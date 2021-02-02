@@ -1,11 +1,13 @@
-use ndarray_linalg::types::c64;
 use std::ops::*;
+use ndarray::{Array1, Array2,array};
+use ndarray_linalg::types::c64;
 
-#[derive(Debug, Clone, PartialEq, PartialOrd)]
-pub struct Plaintxt(Vec<f64>);
+
+#[derive(Debug, Clone)]
+pub struct Plaintxt(Array1<c64>);
 
 impl Plaintxt {
-    pub fn new(vec: Vec<f64>) -> Plaintxt {
+    pub fn new(vec: Array1<c64>) -> Plaintxt {
         Plaintxt(vec)
     }
 
@@ -27,6 +29,7 @@ impl Plaintxt {
     }
 }
 
+/*
 impl Add for Plaintxt {
     type Output = Self;
     fn add(self, rhs: Self) -> Self {
@@ -52,6 +55,7 @@ impl Mul for Plaintxt {
         Plaintxt(poly)
     }
 }
+*/
 
 /*
 use std::fmt;
