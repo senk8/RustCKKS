@@ -13,22 +13,43 @@ fn main() {
 }
 
 mod tests {
+    use crate::ckks::encoder::CKKSEncoder;
+    use crate::ckks::plaintxt::Plaintxt;
 
+    use crate::prelude::gf_context::GFContext;
+    use crate::prelude::ring_context::RingContext;
+
+    use ndarray_linalg::types::c64;
+    use ndarray::{Array1, Array2,array};
+
+    const E: f64 = 1e-10;
+
+    fn complex_eq(c1: c64, c2: c64) -> bool {
+        let re_diff = c1.re - c2.re;
+        let im_diff = c1.im - c2.im;
+
+        if re_diff < E && im_diff < E {
+            true
+        } else {
+            false
+        }
+    }
+
+    fn cyc(m: usize) -> c64 {
+        let rad = 2f64 / (m as f64) * std::f64::consts::PI;
+        c64::new(rad.cos(), rad.sin())
+    }
+    
     #[test]
-    fn test_cyc(){
-        use crate::ckks::encoder::CKKSEncoder;
-        use crate::prelude::cyc::complex_eq;
-        use ndarray_linalg::types::c64;
-
-        let encoder = CKKSEncoder::new(4);
+    fn test_unity(){
+        let encoder = CKKSEncoder::new(8);
         let x = encoder.get_unity();
 
-        assert_eq!(true, complex_eq(c64::new(1f64, 0f64), x * x * x * x))
+        assert_eq!(true, complex_eq(c64::new(-1f64, 0f64), x * x * x * x));
     }
 
     #[test]
     fn test_gf() {
-        use crate::prelude::gf_context::GFContext;
         let gf5 = GFContext::new(5);
 
         assert_eq!(gf5.elm(0), gf5.elm(5));
@@ -50,8 +71,6 @@ mod tests {
 
     #[test]
     fn test_ring() {
-        use crate::prelude::ring_context::RingContext;
-
         let ring5 = RingContext::new(5);
 
         assert_eq!(ring5.elm(0), ring5.elm(5));
@@ -61,25 +80,9 @@ mod tests {
         assert_eq!(ring5.elm(4), ring5.elm(104));
     }
 
-    #[test]
-    fn test_cyclotomic() {
-        use crate::prelude::cyc::{complex_eq, cyc};
-        use ndarray_linalg::types::c64;
-        let m = 4;
-        let one = c64::new(1f64, 0f64);
-        let cyclotomic = cyc(m);
-        assert_eq!(
-            true,
-            complex_eq(one, cyclotomic * cyclotomic * cyclotomic * cyclotomic)
-        );
-    }
-
+    /*
     #[test]
     fn test_poly() {
-        use crate::ckks::plaintxt::Plaintxt;
-        use crate::prelude::cyc::{complex_eq, cyc};
-        use ndarray_linalg::types::c64;
-
         let one = c64::new(1f64, 0f64);
         let two = c64::new(2f64, 0f64);
         let three = c64::new(3f64, 0f64);
@@ -97,14 +100,13 @@ mod tests {
     }
 
     #[test]
-    fn test_unity() {
-        use crate::prelude::cyc::complex_eq;
-        use ndarray_linalg::types::c64;
+    fn test_pi_inverse() {
+        let encoder = CKKSEncoder::new(8);
 
-        let encoder = crate::ckks::encoder::CKKSEncoder::new(4);
-        let x = encoder.get_unity();
+        let x = array![c64::new(1f64,0f64),c64::new(0f64,0f64)];
+        let res = array![c64::new(1f64,0f64),c64::new(0f64,0f64),c64::new(0f64,0f64),c64::new(1f64,0f64)];
 
-        println!("{:?}", x*x*x*x);
-        assert_eq!(true, complex_eq(c64::new(1f64, 0f64), x * x * x * x));
+        assert_eq!(true, complex_eq(res,encoder.pi_inverse(x)));
     }
+    */
 }

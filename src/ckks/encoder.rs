@@ -29,9 +29,12 @@ impl CKKSEncoder {
 
     pub fn new(m: usize) -> CKKSEncoder {
         let unity =
-            (2f64 * std::f64::consts::PI * c64::i() / c64::new(m as f64, 0f64)).exp();
+            (2f64 *  c64::i() / c64::new(m as f64, 0f64) * std::f64::consts::PI).exp();
+        //self.create_sigma_R_basis();
         CKKSEncoder { m, unity }
     }
+
+    
 
     pub fn get_unity(&self) -> c64 {
         self.unity
@@ -55,7 +58,8 @@ impl CKKSEncoder {
     pub fn encode(&self,z:Array1<c64>)->Plaintxt
     {
         let vand = self.vandermonde();
-        let coeffs = vand.solveh_into(z).unwrap();
+        println!("{}",&vand);
+        let coeffs = vand.solveh(&z).unwrap();
         Plaintxt::new(coeffs)
     }
     
@@ -75,21 +79,25 @@ impl CKKSEncoder {
     }
 
     /*
+    fn create_sigma_R_basis(&self){
+        """Creates the basis (sigma(1), sigma(X), ..., sigma(X** N-1))."""
+        self.basis = Array1::new(self.vandermonde(self.unity, self.M)).transpose()
+    }
+
     pub fn pi(self,z:Array1<c64>)->Array1<c64>
     {
-        //H->C^N/2
         let n = self.m / 4;
+
+        /* H->C^N/2 ベクトルを半分にする*/
         z[..n]
     }
 
     pub fn pi_inverse(self,z:Array1<c64>)->Array1<c64>
     {
-       //C^N/2 を共役で拡張
-       /*
-        1. zを反転してz'にする
-        2. z'の要素を共役に変換する
-        3. zとz'を結合する
-       */
+        let zd = z.reverse();//1. zを反転してz'にする
+        let zd_conjugate = zd;//2. z'の要素を共役に変換する
+
+        concate(zd,zd_conjugate);//3. zとz'を結合する
     }
     */
 }
