@@ -7,30 +7,24 @@ use ndarray_linalg::types::c64;
 pub struct CKKSEncoder {
     m: usize,
     unity: c64,
-    //sigma_r_basis: Array1<c64>,
+    basis: Array2<c64>,
 }
 
 impl CKKSEncoder {
-
     pub fn new(m: usize) -> CKKSEncoder {
         let unity =
             (2f64 *  c64::i() / c64::new(m as f64, 0f64) * std::f64::consts::PI).exp();
-        //self.create_sigma_r_basis();
+        let basis = CKKSEncoder::vandermonde(m,unity).t().to_owned();
         //self.scale
-        CKKSEncoder { m, unity }
+        CKKSEncoder { m,unity, basis }
     }
 
-
-    pub fn get_unity(&self) -> c64 {
-        self.unity
-    }
-
-    fn vandermonde(&self) -> Array2<c64> {
-        let n: usize = self.m / 2;
+    fn vandermonde(m: usize,unity:c64) -> Array2<c64> {
+        let n: usize = m / 2;
         let mut mat = vec![];
 
         for i in 0..n {
-            let root = self.unity.powu(2 * i as u32 + 1);
+            let root = unity.powu(2 * i as u32 + 1);
             for j in 0..n {
                 mat.push(root.powu(j as u32));
             }
@@ -40,9 +34,19 @@ impl CKKSEncoder {
         res 
     }
 
+    pub fn get_unity(&self) -> c64 {
+        self.unity
+    }
+
+    pub fn get_basis(&self) -> Array2<c64> {
+        self.basis.clone()
+    }
+}
+
+impl CKKSEncoder {
     pub fn encode(&self,z:Array1<c64>)->Plaintxt
     {
-        let vand = self.vandermonde();
+        let vand = CKKSEncoder::vandermonde(self.m,self.unity);
         let coeffs = vand.solve_into(z).unwrap();
         Plaintxt::new(coeffs)
     }
@@ -62,20 +66,15 @@ impl CKKSEncoder {
         Array::from_vec(z)
     }
 
-    /*
-    fn create_sigma_R_basis(&self){
-        self.basis = Array1::new(self.vandermonde(self.unity, self.M)).transpose()
-    }
-
     pub fn pi(self,z:Array1<c64>)->Array1<c64>
     {
         let n = self.m / 4;
 
         /* H->C^N/2 ベクトルを半分にする*/
-        let (head,tail)=z.split_at(Axis(0),n);
-        z.slice(s![n..])
+        z.slice(s![n..]).to_owned()
     }
 
+    /*
     pub fn pi_inverse(self,z:Array1<c64>)->Array1<c64>
     {
         let zd = z.slice(s![..;-1]);//1. zを反転してz'にする
