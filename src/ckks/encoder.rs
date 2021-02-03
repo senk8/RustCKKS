@@ -71,7 +71,7 @@ impl CKKSEncoder {
         let n = self.m / 4;
 
         /* H->C^N/2 ベクトルを半分にする*/
-        z.slice(s![n..]).to_owned()
+        z.slice(s![..n]).to_owned()
     }
 
     /*

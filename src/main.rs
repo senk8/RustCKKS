@@ -4,16 +4,16 @@ use ckks::encoder::CKKSEncoder;
 use ndarray::{Array1, Array2,array};
 use ndarray_linalg::types::c64;
 
+
 macro_rules! carray {
-    ($arr:expr) => {
-        $arr.map(|x|c64::new(*x as f64,0f64));
-    };
+    ( $( $x:expr ),* ) => ( array![ $( c64::new($x as f64,0f64) ),* ] )
 }
+
 
 fn main() {
     let encoder = CKKSEncoder::new(8);
-    let x = carray!(array![1,2,3,4]);
-    let y = carray!(array![1,2,3,4]);
+    let x = carray![1,2,3,4];
+    let y = carray![1,2,3,4];
 
     let ptxt1 = encoder.encode(x.clone());
     let ptxt2 = encoder.encode(y.clone());
@@ -91,7 +91,7 @@ mod tests {
     fn test_encode_and_decode() {
         use ndarray_linalg::Norm;
         let encoder = CKKSEncoder::new(8);
-        let x = carray!(array![1,2,3,4]);
+        let x = carray![1,2,3,4];
 
         let ptxt = encoder.encode(x.clone());
         let xd = encoder.decode(ptxt);
@@ -105,8 +105,8 @@ mod tests {
     #[test]
     fn test_additive_homomorphic() {
         let encoder = CKKSEncoder::new(8);
-        let x = carray!(array![1,2,3,4]);
-        let y = carray!(array![1,2,3,4]);
+        let x = carray![1,2,3,4];
+        let y = carray![1,2,3,4];
         let ptxt1 = encoder.encode(x.clone());
         let ptxt2 = encoder.encode(y.clone());
 
@@ -120,8 +120,8 @@ mod tests {
     #[test]
     fn test_multiplicative_homomorphic() {
         let encoder = CKKSEncoder::new(8);
-        let x = carray!(array![1,2,3,4]);
-        let y = carray!(array![1,2,3,4]);
+        let x = carray![1,2,3,4];
+        let y = carray![1,2,3,4];
 
         let ptxt1 = encoder.encode(x.clone());
         let ptxt2 = encoder.encode(y.clone());
