@@ -7,8 +7,18 @@ use ndarray_linalg::types::c64;
 
 fn main() {
     let encoder = CKKSEncoder::new(8);
-    let ptxt = encoder.encode(array![c64::new(1f64,0f64),c64::new(2f64,0f64),c64::new(3f64,0f64),c64::new(4f64,0f64)]);
-    let res = encoder.decode(ptxt);
+    let x = array![c64::new(1f64,0f64),c64::new(2f64,0f64),c64::new(3f64,0f64),c64::new(4f64,0f64)];
+    let y = array![c64::new(1f64,0f64),c64::new(2f64,0f64),c64::new(3f64,0f64),c64::new(4f64,0f64)];
+
+    let ptxt1 = encoder.encode(x.clone());
+    let ptxt2 = encoder.encode(y.clone());
+
+    let xy = x * y;
+    let ptxt12 = ptxt1 * ptxt2;
+
+    println!("{:?}",&xy);
+    println!("{:?}",encoder.decode(ptxt12));
+
     return ();
 }
 
@@ -20,20 +30,10 @@ mod tests {
     use crate::prelude::ring_context::RingContext;
 
     use ndarray_linalg::types::c64;
+    use ndarray_linalg::Norm;
     use ndarray::{Array1, Array2,array};
 
     const E: f64 = 1e-10;
-
-    fn complex_eq(c1: c64, c2: c64) -> bool {
-        let re_diff = c1.re - c2.re;
-        let im_diff = c1.im - c2.im;
-
-        if re_diff < E && im_diff < E {
-            true
-        } else {
-            false
-        }
-    }
 
     fn cyc(m: usize) -> c64 {
         let rad = 2f64 / (m as f64) * std::f64::consts::PI;
@@ -45,7 +45,8 @@ mod tests {
         let encoder = CKKSEncoder::new(8);
         let x = encoder.get_unity();
 
-        assert_eq!(true, complex_eq(c64::new(-1f64, 0f64), x * x * x * x));
+        let diff = c64::new(-1f64, 0f64) - x * x * x * x;
+        assert!( diff.norm() < E);
     }
 
     #[test]
@@ -80,6 +81,51 @@ mod tests {
         assert_eq!(ring5.elm(4), ring5.elm(104));
     }
 
+    #[test]
+    fn test_encode_and_decode() {
+        use ndarray_linalg::Norm;
+        let encoder = CKKSEncoder::new(8);
+        let x = array![c64::new(1f64,0f64),c64::new(2f64,0f64),c64::new(3f64,0f64),c64::new(4f64,0f64)];
+
+        let ptxt = encoder.encode(x.clone());
+        let xd = encoder.decode(ptxt);
+
+        let diff = x - xd;
+        assert!(diff.norm_l2() < E);
+    }
+
+    #[test]
+    fn test_additive_homomorphic() {
+        let encoder = CKKSEncoder::new(8);
+        let x = array![c64::new(1f64,0f64),c64::new(2f64,0f64),c64::new(3f64,0f64),c64::new(4f64,0f64)];
+        let y = array![c64::new(1f64,0f64),c64::new(2f64,0f64),c64::new(3f64,0f64),c64::new(4f64,0f64)];
+
+        let ptxt1 = encoder.encode(x.clone());
+        let ptxt2 = encoder.encode(y.clone());
+
+        let xy = x + y;
+        let ptxt12 = ptxt1 + ptxt2;
+
+        let diff = xy - encoder.decode(ptxt12);
+        assert!(diff.norm_l2() < E);
+    }
+
+    #[test]
+    fn test_multiplicative_homomorphic() {
+        let encoder = CKKSEncoder::new(8);
+        let x = array![c64::new(1f64,0f64),c64::new(2f64,0f64),c64::new(3f64,0f64),c64::new(4f64,0f64)];
+        let y = array![c64::new(1f64,0f64),c64::new(2f64,0f64),c64::new(3f64,0f64),c64::new(4f64,0f64)];
+
+        let ptxt1 = encoder.encode(x.clone());
+        let ptxt2 = encoder.encode(y.clone());
+
+        let xy = x * y;
+        let ptxt12 = ptxt1 * ptxt2;
+
+        let diff = xy - encoder.decode(ptxt12);
+        assert!(diff.norm_l2() < E);
+    }
+
     /*
     #[test]
     fn test_poly() {
@@ -106,6 +152,7 @@ mod tests {
         let x = array![c64::new(1f64,0f64),c64::new(0f64,0f64)];
         let res = array![c64::new(1f64,0f64),c64::new(0f64,0f64),c64::new(0f64,0f64),c64::new(1f64,0f64)];
 
+        println!("{}",encoder.sigma_r_basis);
         assert_eq!(true, complex_eq(res,encoder.pi_inverse(x)));
     }
     */

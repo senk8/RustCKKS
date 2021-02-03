@@ -1,5 +1,5 @@
 use std::ops::*;
-use ndarray::{Array1, Array2,array};
+use ndarray::{Array,Array1, Array2,array};
 use ndarray_linalg::types::c64;
 
 
@@ -29,11 +29,10 @@ impl Plaintxt {
     }
 }
 
-/*
 impl Add for Plaintxt {
     type Output = Self;
     fn add(self, rhs: Self) -> Self {
-        Plaintxt(self.0.iter().zip(rhs.0).map(|(x, y)| *x + y).collect())
+        Plaintxt(self.0 + rhs.0)
     }
 }
 
@@ -41,7 +40,7 @@ impl Mul for Plaintxt {
     type Output = Self;
     fn mul(self, rhs: Self) -> Self {
         let d = self.0.len() + rhs.0.len() - 1;
-        let mut poly = vec![0f64; d];
+        let mut poly = Array::zeros(d);
 
         for k in 0..=d {
             for i in 0..=k {
@@ -55,14 +54,13 @@ impl Mul for Plaintxt {
         Plaintxt(poly)
     }
 }
-*/
 
 /*
-use std::fmt;
-impl fmt::Display for Polynomial {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        self.0.iter().map(|num|std::char::from_digit(num as u32, 10));
-        write!(f,format!(self.0.map.) )
+use std::fmt::{Display,Formatter,Result};
+impl Display for Plaintxt {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        let st = self.0.to_string();
+        write!(f,st)
     }
 }
 */

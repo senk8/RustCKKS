@@ -7,6 +7,7 @@ use ndarray_linalg::types::c64;
 pub struct CKKSEncoder {
     m: usize,
     unity: c64,
+    //sigma_r_basis: Array1<c64>,
 }
 
 impl CKKSEncoder {
@@ -30,7 +31,8 @@ impl CKKSEncoder {
     pub fn new(m: usize) -> CKKSEncoder {
         let unity =
             (2f64 *  c64::i() / c64::new(m as f64, 0f64) * std::f64::consts::PI).exp();
-        //self.create_sigma_R_basis();
+        //self.create_sigma_r_basis();
+        //self.scale
         CKKSEncoder { m, unity }
     }
 
@@ -58,8 +60,7 @@ impl CKKSEncoder {
     pub fn encode(&self,z:Array1<c64>)->Plaintxt
     {
         let vand = self.vandermonde();
-        println!("{}",&vand);
-        let coeffs = vand.solveh(&z).unwrap();
+        let coeffs = vand.solve_into(z).unwrap();
         Plaintxt::new(coeffs)
     }
     
