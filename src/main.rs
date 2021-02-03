@@ -13,8 +13,12 @@ fn main() {
     let ptxt1 = encoder.encode(x.clone());
     let ptxt2 = encoder.encode(y.clone());
 
+    //encoder.pi(x);
+
+
     let xy = x * y;
     let ptxt12 = ptxt1 * ptxt2;
+    
 
     println!("{:?}",&xy);
     println!("{:?}",encoder.decode(ptxt12));

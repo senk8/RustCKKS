@@ -1,5 +1,5 @@
 use super::plaintxt::Plaintxt;
-use ndarray::{Array, Array1, Array2};
+use ndarray::{Array, Array1, Array2, s};
 use ndarray::prelude::*;
 use ndarray_linalg::*;
 use ndarray_linalg::types::c64;
@@ -11,22 +11,6 @@ pub struct CKKSEncoder {
 }
 
 impl CKKSEncoder {
-    /*
-    CKKSは整数多項式環の性質を利用するが、多くの場合で実数ベクトルが入力されるのでエンコードが必要。
-
-    N =  2^k
-
-    encode :: C mod N/2 -> m(X) ∈ R = ℤ[X]/(X^N+1)
-
-    M = 2N 次元の円分多項式　ΦM(X)=XN+1.
-
-    */
-
-    /*
-        make vandermode
-        1,1,1,1,1
-        x^1,x^1,x^1,x^1
-    */
 
     pub fn new(m: usize) -> CKKSEncoder {
         let unity =
@@ -36,7 +20,6 @@ impl CKKSEncoder {
         CKKSEncoder { m, unity }
     }
 
-    
 
     pub fn get_unity(&self) -> c64 {
         self.unity
@@ -81,7 +64,6 @@ impl CKKSEncoder {
 
     /*
     fn create_sigma_R_basis(&self){
-        """Creates the basis (sigma(1), sigma(X), ..., sigma(X** N-1))."""
         self.basis = Array1::new(self.vandermonde(self.unity, self.M)).transpose()
     }
 
@@ -90,15 +72,19 @@ impl CKKSEncoder {
         let n = self.m / 4;
 
         /* H->C^N/2 ベクトルを半分にする*/
-        z[..n]
+        let (head,tail)=z.split_at(Axis(0),n);
+        z.slice(s![n..])
     }
 
     pub fn pi_inverse(self,z:Array1<c64>)->Array1<c64>
     {
-        let zd = z.reverse();//1. zを反転してz'にする
-        let zd_conjugate = zd;//2. z'の要素を共役に変換する
+        let zd = z.slice(s![..;-1]);//1. zを反転してz'にする
+        let zd_conjugate = zd.map(|x|x.conj());//2. z'の要素を共役に変換する
 
-        concate(zd,zd_conjugate);//3. zとz'を結合する
+        let x = zd.iter();
+        let y = zd_conjugate.iter();//3. zとz'を結合する
+
+        Array::from_vec(x.chain(y).collect::Vec<c64>())
     }
     */
 }
