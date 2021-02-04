@@ -1,7 +1,6 @@
-use std::ops::*;
-use ndarray::{Array,Array1, Array2,array};
+use ndarray::{array, Array, Array1, Array2};
 use ndarray_linalg::types::c64;
-
+use std::ops::*;
 
 #[derive(Debug, Clone)]
 pub struct Plaintxt(Array1<c64>);

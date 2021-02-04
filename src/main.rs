@@ -1,43 +1,41 @@
 mod ckks;
 mod prelude;
 use ckks::encoder::CKKSEncoder;
-use ndarray::{Array1, Array2,array};
+use ndarray::array;
 use ndarray_linalg::types::c64;
-
+use ndarray_linalg::error::LinalgError;
 
 macro_rules! carray {
     ( $( $x:expr ),* ) => ( array![ $( c64::new($x as f64,0f64) ),* ] )
 }
 
-
-fn main() {
+fn main() -> Result<(),LinalgError>{
     let encoder = CKKSEncoder::new(8);
-    let x = carray![1,2,3,4];
-    let y = carray![1,2,3,4];
+    let x = carray![1, 2, 3, 4];
+    let y = carray![1, 2, 3, 4];
 
-    let ptxt1 = encoder.encode(x.clone());
-    let ptxt2 = encoder.encode(y.clone());
+    let ptxt1 = encoder.encode(x.clone())?;
+    let ptxt2 = encoder.encode(y.clone())?;
 
     let xy = x * y;
     let ptxt12 = ptxt1 * ptxt2;
 
-    println!("{:?}",&xy);
-    println!("{:?}",encoder.decode(ptxt12));
-    println!("{}",encoder.get_basis());
+    println!("{:?}", &xy);
+    println!("{:?}", encoder.decode(ptxt12));
+    println!("{}", encoder.get_basis());
 
-    return ();
+    return Ok(());
 }
 
+#[cfg(test)]
 mod tests {
     use crate::ckks::encoder::CKKSEncoder;
-    use crate::ckks::plaintxt::Plaintxt;
-
     use crate::prelude::gf_context::GFContext;
     use crate::prelude::ring_context::RingContext;
-
+    use ndarray::{array};
     use ndarray_linalg::types::c64;
     use ndarray_linalg::Norm;
-    use ndarray::{Array1, Array2,array};
+    use ndarray_linalg::error::LinalgError;
 
     const E: f64 = 1e-10;
 
@@ -45,14 +43,14 @@ mod tests {
         let rad = 2f64 / (m as f64) * std::f64::consts::PI;
         c64::new(rad.cos(), rad.sin())
     }
-    
+
     #[test]
-    fn test_unity(){
+    fn test_unity() {
         let encoder = CKKSEncoder::new(8);
         let x = encoder.get_unity();
 
         let diff = c64::new(-1f64, 0f64) - x * x * x * x;
-        assert!( diff.norm() < E);
+        assert!(diff.norm() < E);
     }
 
     #[test]
@@ -88,49 +86,55 @@ mod tests {
     }
 
     #[test]
-    fn test_encode_and_decode() {
+    fn test_encode_and_decode() -> Result<(),LinalgError>{
         use ndarray_linalg::Norm;
         let encoder = CKKSEncoder::new(8);
-        let x = carray![1,2,3,4];
+        let x = carray![1, 2, 3, 4];
 
-        let ptxt = encoder.encode(x.clone());
-        let xd = encoder.decode(ptxt);
+        let ptxt = encoder.encode(x.clone())?;
+        let xd = encoder.decode(ptxt)?;
 
         let diff = x - xd;
         assert!(diff.norm_l2() < E);
 
-        //assert!(x.all_close(&xd, E));
+        Ok(())
     }
 
     #[test]
-    fn test_additive_homomorphic() {
+    fn test_additive_homomorphic() -> Result<(),LinalgError> {
         let encoder = CKKSEncoder::new(8);
-        let x = carray![1,2,3,4];
-        let y = carray![1,2,3,4];
-        let ptxt1 = encoder.encode(x.clone());
-        let ptxt2 = encoder.encode(y.clone());
+        let x = carray![1, 2, 3, 4];
+        let y = carray![1, 2, 3, 4];
+        let ptxt1 = encoder.encode(x.clone())?;
+        let ptxt2 = encoder.encode(y.clone())?;
 
         let xy = x + y;
         let ptxt12 = ptxt1 + ptxt2;
+        let xyd = encoder.decode(ptxt12)?;
 
-        let diff = xy - encoder.decode(ptxt12);
+        let diff = xy - xyd;
         assert!(diff.norm_l2() < E);
+
+        Ok(())
     }
 
     #[test]
-    fn test_multiplicative_homomorphic() {
+    fn test_multiplicative_homomorphic() -> Result<(),LinalgError>{
         let encoder = CKKSEncoder::new(8);
-        let x = carray![1,2,3,4];
-        let y = carray![1,2,3,4];
+        let x = carray![1, 2, 3, 4];
+        let y = carray![1, 2, 3, 4];
 
-        let ptxt1 = encoder.encode(x.clone());
-        let ptxt2 = encoder.encode(y.clone());
+        let ptxt1 = encoder.encode(x.clone())?;
+        let ptxt2 = encoder.encode(y.clone())?;
 
         let xy = x * y;
         let ptxt12 = ptxt1 * ptxt2;
+        let xyd = encoder.decode(ptxt12)?;
 
-        let diff = xy - encoder.decode(ptxt12);
+        let diff = xy - xyd;
         assert!(diff.norm_l2() < E);
+
+        Ok(())
     }
 
     /*

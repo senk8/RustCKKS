@@ -1,8 +1,9 @@
 use super::plaintxt::Plaintxt;
-use ndarray::{Array, Array1, Array2, s};
+use error::LinalgError;
 use ndarray::prelude::*;
-use ndarray_linalg::*;
+use ndarray::{s, Array, Array1, Array2};
 use ndarray_linalg::types::c64;
+use ndarray_linalg::*;
 
 pub struct CKKSEncoder {
     m: usize,
@@ -12,14 +13,13 @@ pub struct CKKSEncoder {
 
 impl CKKSEncoder {
     pub fn new(m: usize) -> CKKSEncoder {
-        let unity =
-            (2f64 *  c64::i() / c64::new(m as f64, 0f64) * std::f64::consts::PI).exp();
-        let basis = CKKSEncoder::vandermonde(m,unity).t().to_owned();
+        let unity = (2f64 * c64::i() / c64::new(m as f64, 0f64) * std::f64::consts::PI).exp();
+        let basis = CKKSEncoder::vandermonde(m, unity).t().to_owned();
         //self.scale
-        CKKSEncoder { m,unity, basis }
+        CKKSEncoder { m, unity, basis }
     }
 
-    fn vandermonde(m: usize,unity:c64) -> Array2<c64> {
+    fn vandermonde(m: usize, unity: c64) -> Array2<c64> {
         let n: usize = m / 2;
         let mut mat = vec![];
 
@@ -31,7 +31,7 @@ impl CKKSEncoder {
         }
 
         let res = Array::from_shape_vec((n, n), mat).unwrap();
-        res 
+        res
     }
 
     pub fn get_unity(&self) -> c64 {
@@ -44,16 +44,13 @@ impl CKKSEncoder {
 }
 
 impl CKKSEncoder {
-    pub fn encode(&self,z:Array1<c64>)->Plaintxt
-    {
-        let vand = CKKSEncoder::vandermonde(self.m,self.unity);
-        let coeffs = vand.solve_into(z).unwrap();
-        Plaintxt::new(coeffs)
+    pub fn encode(&self, z: Array1<c64>) -> Result<Plaintxt,LinalgError> {
+        let vand = CKKSEncoder::vandermonde(self.m, self.unity);
+        let coeffs = vand.solve_into(z)?;
+        Ok(Plaintxt::new(coeffs))
     }
-    
 
-    pub fn decode(&self,poly: Plaintxt)->Array1<c64>
-    {
+    pub fn decode(&self, poly: Plaintxt) -> Result<Array1<c64>,LinalgError> {
         let n = self.m / 2;
         let mut z = vec![];
 
@@ -63,11 +60,11 @@ impl CKKSEncoder {
             z.push(res);
         }
 
-        Array::from_vec(z)
+       
+        Ok(Array::from_vec(z))
     }
 
-    pub fn pi(self,z:Array1<c64>)->Array1<c64>
-    {
+    pub fn pi(self, z: Array1<c64>) -> Array1<c64> {
         let n = self.m / 4;
 
         /* H->C^N/2 ベクトルを半分にする*/
