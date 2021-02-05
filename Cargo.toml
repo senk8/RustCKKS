@@ -11,5 +11,6 @@ nalgebra = "*"
 ndarray = "0.13.0" # 0.14以上だと、solve_intoがない。
 ndarray-linalg = { version = "0.12.1", features = ["intel-mkl"] }
 num = "0.3.1"
+rand = "0.8.3"
 num-complex = "0.3.1"
 

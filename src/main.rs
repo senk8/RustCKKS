@@ -1,5 +1,6 @@
 mod ckks;
 mod prelude;
+
 use ckks::encoder::CKKSEncoder;
 use ndarray::array;
 use ndarray_linalg::types::c64;
@@ -13,6 +14,11 @@ fn main() -> Result<(),LinalgError>{
     let encoder = CKKSEncoder::new(8);
     let x = carray![1, 2, 3, 4];
     let y = carray![1, 2, 3, 4];
+    let w = carray![1, 1, 1, 1];
+  
+    let res=encoder.get_basis().t().dot(&w);
+
+    let w = carray![1, 1, 1, 1];
 
     let ptxt1 = encoder.encode(x.clone())?;
     let ptxt2 = encoder.encode(y.clone())?;
@@ -39,6 +45,7 @@ mod tests {
 
     const E: f64 = 1e-10;
 
+    #[allow(dead_code)]
     fn cyc(m: usize) -> c64 {
         let rad = 2f64 / (m as f64) * std::f64::consts::PI;
         c64::new(rad.cos(), rad.sin())
@@ -137,6 +144,20 @@ mod tests {
         Ok(())
     }
 
+    #[test]
+    fn test_pi_and_pi_inverse() -> Result<(),LinalgError>{
+        let encoder = CKKSEncoder::new(8);
+        let x = carray![0, 1];
+        let y = carray![0, 1, 1, 0];
+        let z = encoder.pi_inverse(&x);
+
+        println!("{}",&z);
+        let diff = y - z;
+        assert!(diff.norm_l2() < E);
+
+        Ok(())
+    }
+
     /*
     #[test]
     fn test_poly() {
@@ -156,15 +177,5 @@ mod tests {
         assert_eq!(poly3, poly1 * poly2);
     }
 
-    #[test]
-    fn test_pi_inverse() {
-        let encoder = CKKSEncoder::new(8);
-
-        let x = array![c64::new(1f64,0f64),c64::new(0f64,0f64)];
-        let res = array![c64::new(1f64,0f64),c64::new(0f64,0f64),c64::new(0f64,0f64),c64::new(1f64,0f64)];
-
-        println!("{}",encoder.sigma_r_basis);
-        assert_eq!(true, complex_eq(res,encoder.pi_inverse(x)));
-    }
     */
 }

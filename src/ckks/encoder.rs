@@ -1,3 +1,5 @@
+use core::f64;
+
 use super::plaintxt::Plaintxt;
 use error::LinalgError;
 use ndarray::prelude::*;
@@ -44,12 +46,25 @@ impl CKKSEncoder {
 }
 
 impl CKKSEncoder {
+    /// encode: $\sigma(\mathbf{R})->\mathcal{R}$
+    /// solve following equation:
+    /// $ z = A^-1 x $
+    /// 
+    /// where A is vandermonde matrix. 
+    /// 
     pub fn encode(&self, z: Array1<c64>) -> Result<Plaintxt,LinalgError> {
         let vand = CKKSEncoder::vandermonde(self.m, self.unity);
         let coeffs = vand.solve_into(z)?;
         Ok(Plaintxt::new(coeffs))
     }
 
+    /// decode: \mathcal{R}->\sigma(\mathcal{R})$
+    /// calculate x .
+    /// x = A z
+    /// 
+    /// Calculate x by assigning root into A, evaluating it, and taking the product with z.
+    /// A is vandermonde matrix. $z \in \mathcal{R},x \in \mathcal{\sigma{R}}$
+    /// 
     pub fn decode(&self, poly: Plaintxt) -> Result<Array1<c64>,LinalgError> {
         let n = self.m / 2;
         let mut z = vec![];
@@ -59,28 +74,73 @@ impl CKKSEncoder {
             let res = poly.eval(root);
             z.push(res);
         }
-
        
+        // TODO: enable us to detect isize::MAX < res.len()
         Ok(Array::from_vec(z))
     }
 
-    pub fn pi(self, z: Array1<c64>) -> Array1<c64> {
+    pub fn pi(&self, z: &Array1<c64>) -> Array1<c64> {
         let n = self.m / 4;
 
         /* H->C^N/2 ベクトルを半分にする*/
         z.slice(s![..n]).to_owned()
     }
 
-    /*
-    pub fn pi_inverse(self,z:Array1<c64>)->Array1<c64>
+    pub fn pi_inverse(&self,z: &Array1<c64>)->Array1<c64>
     {
-        let zd = z.slice(s![..;-1]);//1. zを反転してz'にする
+        let zd = z.slice(s![..;-1]).to_owned();//1. zを反転してz'にする
         let zd_conjugate = zd.map(|x|x.conj());//2. z'の要素を共役に変換する
 
-        let x = zd.iter();
-        let y = zd_conjugate.iter();//3. zとz'を結合する
+        let mut res = vec![];
+        for i in z.into_iter().chain(zd_conjugate.into_iter()) {
+            res.push(*i)
+        }
 
-        Array::from_vec(x.chain(y).collect::Vec<c64>())
+       // TODO: enable us to detect isize::MAX < res.len()
+       Array::from_vec(res)
     }
-    */
+}
+
+impl CKKSEncoder {
+    /// compute
+    /// 
+    /// $<z,bi>/|b_i|^2$ 
+    /// 
+    /// 
+    fn compute_basis_coordinate(&self,z:Array1<c64>)->Array1<f64>{
+        let mut tmp = vec![];
+        for i in 0..self.basis.len(){
+            let bi=self.basis.row(i).to_owned();
+            let bb=bi.map(|b|b.conj());
+            let zb =z.dot(&bb);
+            let bsize = bi.dot(&bi);
+            let zi = zb / bsize;
+            tmp.push(zi.re);
+        }
+        Array1::from_vec(tmp)
+    }
+
+    fn coordinates_wise_rrounding(&self,coordinates:Array1<f64>)->Array1<i64>{
+        use rand::prelude::*;
+        use rand::distributions::weighted::WeightedIndex;
+        let round_coordinates= coordinates - coordinates.map(|x|x.floor());
+
+        let f = round_coordinates.map(|c|{
+            let choices = [c,1.0-c];
+            let weights = [1.0-c,c-1.0];
+            let mut rng = rand::thread_rng();
+            let dist = WeightedIndex::new(&weights).unwrap();
+            choices[dist.sample(&mut rng)]
+        });
+
+        let rounded_coordinates = coordinates - f;
+        round_coordinates.map(|x|*x as i64)
+    }
+
+    pub fn into_integer_basis(&self,z:Array1<c64>)->Array1<i64>{
+        let real_coordinates = self.compute_basis_coordinate(z);
+        let rounded_coordinates = self.coordinates_wise_rrounding(real_coordinates);
+        self.basis.t().dot(&rounded_coordinates)
+    }
+
 }
