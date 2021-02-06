@@ -3,7 +3,7 @@ use ndarray_linalg::types::c64;
 use std::ops::*;
 
 #[derive(Debug, Clone)]
-pub struct Plaintxt(Array1<c64>);
+pub struct Plaintxt(pub Array1<c64>);
 
 impl Plaintxt {
     pub fn new(vec: Array1<c64>) -> Plaintxt {
@@ -51,6 +51,13 @@ impl Mul for Plaintxt {
         }
 
         Plaintxt(poly)
+    }
+}
+
+impl Div<usize> for Plaintxt {
+    type Output = Self;
+    fn div(self, rhs: usize) -> Self {
+        Plaintxt::new(self.0.mapv(|x| x / rhs as f64))
     }
 }
 

@@ -3,32 +3,26 @@ mod prelude;
 
 use ckks::encoder::CKKSEncoder;
 use ndarray::array;
-use ndarray_linalg::types::c64;
 use ndarray_linalg::error::LinalgError;
+use ndarray_linalg::types::c64;
 
 macro_rules! carray {
     ( $( $x:expr ),* ) => ( array![ $( c64::new($x as f64,0f64) ),* ] )
 }
 
-fn main() -> Result<(),LinalgError>{
-    let encoder = CKKSEncoder::new(8);
+fn main() -> Result<(), LinalgError> {
+    let encoder = CKKSEncoder::new(8, 64);
     let x = carray![1, 2, 3, 4];
     let y = carray![1, 2, 3, 4];
     let w = carray![1, 1, 1, 1];
-  
-    let res=encoder.get_basis().t().dot(&w);
 
-    let w = carray![1, 1, 1, 1];
+    let res = encoder.get_basis().t().dot(&w);
 
     let ptxt1 = encoder.encode(x.clone())?;
     let ptxt2 = encoder.encode(y.clone())?;
 
     let xy = x * y;
     let ptxt12 = ptxt1 * ptxt2;
-
-    println!("{:?}", &xy);
-    println!("{:?}", encoder.decode(ptxt12));
-    println!("{}", encoder.get_basis());
 
     return Ok(());
 }
@@ -38,10 +32,10 @@ mod tests {
     use crate::ckks::encoder::CKKSEncoder;
     use crate::prelude::gf_context::GFContext;
     use crate::prelude::ring_context::RingContext;
-    use ndarray::{array};
+    use ndarray::array;
+    use ndarray_linalg::error::LinalgError;
     use ndarray_linalg::types::c64;
     use ndarray_linalg::Norm;
-    use ndarray_linalg::error::LinalgError;
 
     const E: f64 = 1e-10;
 
@@ -53,7 +47,7 @@ mod tests {
 
     #[test]
     fn test_unity() {
-        let encoder = CKKSEncoder::new(8);
+        let encoder = CKKSEncoder::new(8, 64);
         let x = encoder.get_unity();
 
         let diff = c64::new(-1f64, 0f64) - x * x * x * x;
@@ -93,13 +87,13 @@ mod tests {
     }
 
     #[test]
-    fn test_encode_and_decode() -> Result<(),LinalgError>{
+    fn test_sigma_and_invert() -> Result<(), LinalgError> {
         use ndarray_linalg::Norm;
-        let encoder = CKKSEncoder::new(8);
+        let encoder = CKKSEncoder::new(8, 64);
         let x = carray![1, 2, 3, 4];
 
-        let ptxt = encoder.encode(x.clone())?;
-        let xd = encoder.decode(ptxt)?;
+        let ptxt = encoder.sigma_inverse(x.clone())?;
+        let xd = encoder.sigma(ptxt)?;
 
         let diff = x - xd;
         assert!(diff.norm_l2() < E);
@@ -108,74 +102,65 @@ mod tests {
     }
 
     #[test]
-    fn test_additive_homomorphic() -> Result<(),LinalgError> {
-        let encoder = CKKSEncoder::new(8);
+    fn test_sigma_isomorphism() -> Result<(), LinalgError> {
+        let encoder = CKKSEncoder::new(8, 64);
         let x = carray![1, 2, 3, 4];
         let y = carray![1, 2, 3, 4];
-        let ptxt1 = encoder.encode(x.clone())?;
-        let ptxt2 = encoder.encode(y.clone())?;
 
-        let xy = x + y;
-        let ptxt12 = ptxt1 + ptxt2;
-        let xyd = encoder.decode(ptxt12)?;
+        /* testing additive homomorphic */
+        {
+            let ptxt1 = encoder.sigma_inverse(x.clone())?;
+            let ptxt2 = encoder.sigma_inverse(y.clone())?;
 
-        let diff = xy - xyd;
-        assert!(diff.norm_l2() < E);
+            let xy = &x + &y;
+            let ptxt12 = ptxt1 + ptxt2;
+            let xyd = encoder.sigma(ptxt12)?;
+
+            let diff = xy - xyd;
+            assert!(diff.norm_l2() < E);
+        }
+
+        /* testing multiplicative homomorphic */
+        {
+            let ptxt1 = encoder.sigma_inverse(x.clone())?;
+            let ptxt2 = encoder.sigma_inverse(y.clone())?;
+
+            let xy = &x * &y;
+            let ptxt12 = ptxt1 * ptxt2;
+            let xyd = encoder.sigma(ptxt12)?;
+
+            let diff = xy - xyd;
+            assert!(diff.norm_l2() < E);
+        }
 
         Ok(())
     }
 
     #[test]
-    fn test_multiplicative_homomorphic() -> Result<(),LinalgError>{
-        let encoder = CKKSEncoder::new(8);
-        let x = carray![1, 2, 3, 4];
-        let y = carray![1, 2, 3, 4];
-
-        let ptxt1 = encoder.encode(x.clone())?;
-        let ptxt2 = encoder.encode(y.clone())?;
-
-        let xy = x * y;
-        let ptxt12 = ptxt1 * ptxt2;
-        let xyd = encoder.decode(ptxt12)?;
-
-        let diff = xy - xyd;
-        assert!(diff.norm_l2() < E);
-
-        Ok(())
-    }
-
-    #[test]
-    fn test_pi_and_pi_inverse() -> Result<(),LinalgError>{
-        let encoder = CKKSEncoder::new(8);
+    fn test_pi_and_pi_inverse() -> Result<(), LinalgError> {
+        let encoder = CKKSEncoder::new(8, 64);
         let x = carray![0, 1];
         let y = carray![0, 1, 1, 0];
         let z = encoder.pi_inverse(&x);
 
-        println!("{}",&z);
+        println!("{}", &z);
         let diff = y - z;
         assert!(diff.norm_l2() < E);
 
         Ok(())
     }
 
-    /*
     #[test]
-    fn test_poly() {
-        let one = c64::new(1f64, 0f64);
-        let two = c64::new(2f64, 0f64);
-        let three = c64::new(3f64, 0f64);
-        let poly1 = Plaintxt::new(vec![1f64, 2f64]);
-        let poly2 = Plaintxt::new(vec![1f64, 2f64]);
-        let poly3 = Plaintxt::new(vec![1f64, 4f64, 4f64]);
+    fn test_encode_and_decode() -> Result<(), LinalgError> {
+        let encoder = CKKSEncoder::new(8, 64);
+        let x = array![c64::new(3., 4.), c64::new(2., 1.)];
 
-        assert_eq!(true, complex_eq(c64::new(3f64, 0f64), poly1.eval(one)));
-        assert_eq!(true, complex_eq(c64::new(5f64, 0f64), poly1.eval(two)));
-        assert_eq!(
-            true,
-            complex_eq(c64::new(7f64, 0f64), poly1.eval(three))
-        );
-        assert_eq!(poly3, poly1 * poly2);
+        let ptxt = encoder.encode(x.clone())?;
+        let res = encoder.decode(ptxt)?;
+
+        let diff = res - x;
+        assert!(diff.norm_l2() < E);
+
+        Ok(())
     }
-
-    */
 }
