@@ -16,13 +16,16 @@ fn main() -> Result<(), LinalgError> {
     let y = carray![1, 2, 3, 4];
     let w = carray![1, 1, 1, 1];
 
-    let res = encoder.get_basis().t().dot(&w);
+    //let ptxt1 = encoder.encode(x.clone())?;
+    //let ptxt2 = encoder.encode(y.clone())?;
 
-    let ptxt1 = encoder.encode(x.clone())?;
-    let ptxt2 = encoder.encode(y.clone())?;
+    //let xy = x * y;
+    //let ptxt12 = ptxt1 * ptxt2;
 
-    let xy = x * y;
-    let ptxt12 = ptxt1 * ptxt2;
+    let ptxt = encoder.encode(array![c64::new(3.,4.),c64::new(2.,-1.)])?;
+    println!("{:?}",ptxt);
+    let res = encoder.decode(ptxt)?;
+    println!("{}",res);
 
     return Ok(());
 }
@@ -95,6 +98,7 @@ mod tests {
         let ptxt = encoder.sigma_inverse(x.clone())?;
         let xd = encoder.sigma(ptxt)?;
 
+        println!("{:?}",&xd);
         let diff = x - xd;
         assert!(diff.norm_l2() < E);
 

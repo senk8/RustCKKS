@@ -3,17 +3,17 @@ use ndarray_linalg::types::c64;
 use std::ops::*;
 
 #[derive(Debug, Clone)]
-pub struct Plaintxt(pub Array1<c64>);
+pub struct Plaintxt(pub Array1<i64>);
 
 impl Plaintxt {
-    pub fn new(vec: Array1<c64>) -> Plaintxt {
+    pub fn new(vec: Array1<i64>) -> Plaintxt {
         Plaintxt(vec)
     }
 
     pub fn eval(&self, root: c64) -> c64 {
         let mut sum = c64::new(0f64, 0f64);
         for i in 0..self.0.len() {
-            sum = sum + root.powu(i as u32) * self.0[i];
+            sum = sum + root.powu(i as u32) * c64::new(self.0[i] as f64,0.);
         }
         sum
     }
@@ -23,7 +23,7 @@ impl Plaintxt {
     pub fn size(&self) -> c64 {
         self.0
             .iter()
-            .fold(c64::new(0f64, 0f64), |sum, a| sum + a.powi(2))
+            .fold(c64::new(0f64, 0f64), |sum, a| sum + c64::new(a.pow(2) as f64,0.))
             .powf(0.5)
     }
 }
@@ -57,7 +57,7 @@ impl Mul for Plaintxt {
 impl Div<usize> for Plaintxt {
     type Output = Self;
     fn div(self, rhs: usize) -> Self {
-        Plaintxt::new(self.0.mapv(|x| x / rhs as f64))
+        Plaintxt::new(self.0.mapv(|x| x / rhs as i64))
     }
 }
 

@@ -61,12 +61,9 @@ impl CKKSEncoder {
         let rounded = self.into_integer_basis(scaled);
 
         /* sigma(R) -> R . It is inverting sigma */
-        let coeffs = self.sigma_inverse(rounded)?;
+        let plaintxt = self.sigma_inverse(rounded)?;
 
-        /* coeffs contains c64 values. You have to convert it into integers. */
-        Ok(Plaintxt::new(
-            coeffs.0.mapv(|x| c64::new(x.re.round(), x.im)),
-        ))
+        Ok(plaintxt)
     }
 
     ///
@@ -112,7 +109,11 @@ impl CKKSEncoder {
     pub fn sigma_inverse(&self, z: Array1<c64>) -> Result<Plaintxt, LinalgError> {
         let vand = CKKSEncoder::vandermonde(self.m, self.unity);
         let coeffs = vand.solve_into(z)?;
-        Ok(Plaintxt::new(coeffs))
+
+        /* coeffs contains c64 values. You have to convert it into integers. */
+        Ok(Plaintxt::new(
+            coeffs.mapv(|x| x.re.round() as i64),
+        ))
     }
 
     pub fn pi(&self, z: &Array1<c64>) -> Array1<c64> {
