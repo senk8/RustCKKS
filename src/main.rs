@@ -158,6 +158,8 @@ mod tests {
         let ptxt = encoder.encode(x.clone())?;
         let res = encoder.decode(ptxt)?;
 
+        println!("result of decryption : {}",res);
+
         let diff = res - x;
         assert!(diff.norm_l2() < E);
 

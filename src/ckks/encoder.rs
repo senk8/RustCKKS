@@ -61,12 +61,12 @@ impl CKKSEncoder {
         let rounded = self.into_integer_basis(scaled);
 
         /* sigma(R) -> R . It is inverting sigma */
-        let coeffs = self.sigma_inverse(rounded)?;
+        let mut plaintxt = self.sigma_inverse(rounded)?;
 
         /* coeffs contains c64 values. You have to convert it into integers. */
-        Ok(Plaintxt::new(
-            coeffs.0.mapv(|x| c64::new(x.re.round(), x.im)),
-        ))
+        plaintxt.0.mapv_inplace(|x| c64::new(x.re.round(), x.im));
+
+        Ok(plaintxt)
     }
 
     ///
