@@ -12,17 +12,18 @@ macro_rules! carray {
 
 fn main() -> Result<(), LinalgError> {
     let encoder = CKKSEncoder::new(8, 64);
-    let x = carray![1, 2, 3, 4];
-    let y = carray![1, 2, 3, 4];
-    let w = carray![1, 1, 1, 1];
-
-    let res = encoder.get_basis().t().dot(&w);
+    let x = carray![1, 2];
+    let y = carray![1, 2];
+    let w = carray![1, 1];
 
     let ptxt1 = encoder.encode(x.clone())?;
     let ptxt2 = encoder.encode(y.clone())?;
 
     let xy = x * y;
     let ptxt12 = ptxt1 * ptxt2;
+
+    println!("{:?}",xy);
+    println!("{:?}",encoder.decode(ptxt12));
 
     return Ok(());
 }
@@ -37,7 +38,9 @@ mod tests {
     use ndarray_linalg::types::c64;
     use ndarray_linalg::Norm;
 
+    /* constant of allowing difference from an original ciphertxt */
     const E: f64 = 1e-10;
+    const A: f64 = 0.1; 
 
     #[allow(dead_code)]
     fn cyc(m: usize) -> c64 {
@@ -156,13 +159,65 @@ mod tests {
         let x = array![c64::new(3., 4.), c64::new(2., 1.)];
 
         let ptxt = encoder.encode(x.clone())?;
+
+        println!("result of encryption : {:?}",ptxt);
+
         let res = encoder.decode(ptxt)?;
 
         println!("result of decryption : {}",res);
 
         let diff = res - x;
-        assert!(diff.norm_l2() < E);
+        assert!(diff.norm_l2() < A);
 
         Ok(())
     }
+
+    /*
+    #[test]
+    fn test_encypt_and_decrypt() -> Result<(), LinalgError> {
+        let encoder = CKKSEncoder::new(8, 64);
+        let encrypter = CKKSEncrypter::new();
+        let x = array![c64::new(3., 4.), c64::new(2., 1.)];
+
+        let ptxt = encoder.encode(x.clone())?;
+        let ctxt = encrypter.encrypt(ptxt);
+        let ptxtd = encrypter.decrypt(ptxt);
+        let res = encrypter.decode(ptxt)?;
+
+        println!("result of encryption : {:?}",res);
+
+        let diff = res - x;
+        assert!(diff.norm_l2() < A);
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_additive_homomorphic() -> Result<(), LinalgError> {
+        let encoder = CKKSEncoder::new(8, 64);
+        let encrypter = CKKSEncrypter::new();
+        let x = array![c64::new(3., 4.), c64::new(2., 1.)];
+        let y = array![c64::new(3., 4.), c64::new(2., 1.)];
+
+        let ptxt1 = encoder.encode(x.clone())?;
+        let ptxt2 = encoder.encode(y.clone())?;
+
+        let ctxt1 = encrypter.encrypt(ptxt1);
+        let ctxt2 = encrypter.encrypt(ptxt2);
+        let ctxt12 = ctxt1+ctxt2;
+
+        let ptxt12 = encrypter.decrypt(ctxt12);
+        let res = encoder.decode(ptxt12);
+
+        println!("result of encryption : {:?}",res);
+
+        let diff = res - (x + y);
+        assert!(diff.norm_l2() < A);
+
+        Ok(())
+    }
+
+
+
+    */
 }

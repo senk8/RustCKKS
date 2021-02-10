@@ -1,4 +1,4 @@
-use ndarray::{array, Array, Array1, Array2};
+use ndarray::{Array, Array1};
 use ndarray_linalg::types::c64;
 use std::ops::*;
 
@@ -18,6 +18,7 @@ impl Plaintxt {
         sum
     }
 
+    #[allow(dead_code)]
     /// size function calculate below
     ///|h| = (a_0^2 + a_1^2 + ... + a_n^2 )^1/2
     pub fn size(&self) -> c64 {
