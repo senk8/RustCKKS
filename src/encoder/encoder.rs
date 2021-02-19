@@ -1,10 +1,12 @@
 use core::f64;
 
 use super::plaintxt::Plaintxt;
+
 use error::LinalgError;
 use ndarray::{s, Array, Array1, Array2};
 use ndarray_linalg::types::c64;
 use ndarray_linalg::*;
+
 
 pub struct CKKSEncoder {
     m: usize,
@@ -25,26 +27,11 @@ impl CKKSEncoder {
         }
     }
 
-    fn vandermonde(m: usize, unity: c64) -> Array2<c64> {
-        let n: usize = m / 2;
-        let mut mat = vec![];
-
-        for i in 0..n {
-            let root = unity.powu(2 * i as u32 + 1);
-            for j in 0..n {
-                mat.push(root.powu(j as u32));
-            }
-        }
-
-        let res = Array::from_shape_vec((n, n), mat).unwrap();
-        res
-    }
-
-    pub fn get_unity(&self) -> c64 {
+    pub fn unity(&self) -> c64 {
         self.unity
     }
 
-    pub fn get_basis(&self) -> Array2<c64> {
+    pub fn basis(&self) -> Array2<c64> {
         self.basis.clone()
     }
 }
@@ -142,6 +129,9 @@ impl CKKSEncoder {
     }
 }
 
+
+
+/* helper methods */
 impl CKKSEncoder {
     /// perform below computation.
     ///
@@ -182,5 +172,20 @@ impl CKKSEncoder {
            coordinate - subtract_decimals = [2.0,1.0,3.0].
         */
         coordinates - subtract_decimals
+    }
+
+    fn vandermonde(m: usize, unity: c64) -> Array2<c64> {
+        let n: usize = m / 2;
+        let mut mat = vec![];
+
+        for i in 0..n {
+            let root = unity.powu(2 * i as u32 + 1);
+            for j in 0..n {
+                mat.push(root.powu(j as u32));
+            }
+        }
+
+        let res = Array::from_shape_vec((n, n), mat).unwrap();
+        res
     }
 }

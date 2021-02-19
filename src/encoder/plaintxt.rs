@@ -61,32 +61,3 @@ impl Div<usize> for Plaintxt {
         Plaintxt::new(self.0.mapv(|x| x / rhs as f64))
     }
 }
-
-/*
-use std::fmt::{Display,Formatter,Result};
-impl Display for Plaintxt {
-    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        let st = self.0.to_string();
-        write!(f,st)
-    }
-}
-*/
-
-/*
-pub fn is_irreducible(poly:Polynomial) -> bool
-{
-    let p =3;
-    let mut irreducible = true;
-    if poly[0]%p==0 && poly[0]*poly[0]%p {
-    }
-
-    for i in 1..k{
-        irreducible &= poly[i]%3==0;
-    }
-
-    if poly[k]%p != 0
-    irreducible
-}
-*/
-
-//pub fn crt()

@@ -1,16 +1,23 @@
-mod ckks;
+mod encoder;
 mod prelude;
 
-use ckks::encoder::CKKSEncoder;
+use encoder::encoder::CKKSEncoder;
 use ndarray::array;
 use ndarray_linalg::error::LinalgError;
 use ndarray_linalg::types::c64;
+
+use num::Num;
 
 macro_rules! carray {
     ( $( $x:expr ),* ) => ( array![ $( c64::new($x as f64,0f64) ),* ] )
 }
 
 fn main() -> Result<(), LinalgError> {
+    let s = "2";
+
+
+    println!("{}",s);
+    /*
     let encoder = CKKSEncoder::new(8, 64);
     let x = carray![1, 2];
     let y = carray![1, 2];
@@ -25,12 +32,14 @@ fn main() -> Result<(), LinalgError> {
     println!("{:?}",xy);
     println!("{:?}",encoder.decode(ptxt12));
 
+    */
+
     return Ok(());
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::ckks::encoder::CKKSEncoder;
+    use crate::encoder::encoder::CKKSEncoder;
     use crate::prelude::gf_context::GFContext;
     use crate::prelude::ring_context::RingContext;
     use ndarray::array;
@@ -51,7 +60,7 @@ mod tests {
     #[test]
     fn test_unity() {
         let encoder = CKKSEncoder::new(8, 64);
-        let x = encoder.get_unity();
+        let x = encoder.unity();
 
         let diff = c64::new(-1f64, 0f64) - x * x * x * x;
         assert!(diff.norm() < E);
